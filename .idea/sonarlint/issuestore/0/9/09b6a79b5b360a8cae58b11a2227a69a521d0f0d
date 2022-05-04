@@ -1,0 +1,6 @@
+
+s	java:S135"YReduce the total number of break and continue statements in this loop to use at most one.(­öµ¿øÿÿÿÿ
+‚
+java:S1319R"gThe type of "players" should be an interface such as "List" rather than the implementation "ArrayList".(ùí¸úøÿÿÿÿ
+7
+java:S1170"!Make this final field static too.(¶ˆÜŒ

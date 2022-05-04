@@ -1,0 +1,26 @@
+name: Manhunt
+version: 2.0
+author: Schachi
+api-version: 1.18
+description: This is a manhunt plugin! This plugin may cause some problems by executing the reload command.
+  To solve these problems, just start a new Manhunt by using the runner command and stop it, by using stop_manhunt!
+
+main: main.Main
+
+commands:
+  runner:
+    description: runner player1 [player2, ...] - Starts a new Manhunt!
+  add_hunter:
+    description: add_hunter [player] - Adds a new hunter to the currently running Manhunt!
+  add_runner:
+    description: add_runner [player] - Adds a new runner to the currently running Manhunt!
+  manhunt_remove:
+    description: manhunt_remove [player] - Removes a player from the currently running Manhunt!
+  compass:
+    description: compass - Drops the hunter a new compass, when executing this command!
+  heal:
+    description: heal [player] - Heals you or another player!
+  stop_manhunt:
+    description: stop_manhunt - Stops the currently running Manhunt!
+  updaterate:
+    description: updateRate [rate] - Shows or defines the number of ticks, until the compasses are updated again!

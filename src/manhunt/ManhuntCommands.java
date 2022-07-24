@@ -1,6 +1,6 @@
 package manhunt;
 
-import main.Main;
+import main.PluginInitializer;
 import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,226 +12,188 @@ import java.util.ArrayList;
 
 public class ManhuntCommands implements CommandExecutor {
     private static final ManhuntCommands instance = new ManhuntCommands();
+    private ManhuntCommands() {
+    }
     @Override
-    public boolean onCommand(@Nonnull CommandSender commandSender, @Nonnull Command command, @Nonnull String s, @Nonnull String[] args) {
-        Manhunt manhunt = Manhunt.getInstance();
-        if (command.getName().equals("runner") && commandSender.hasPermission("commands.runner")) {
-            manhunt.finish();
-            if (args.length > 0) {
-                ArrayList<Player> runners = new ArrayList<>();
-                ArrayList<Player> hunters = new ArrayList<>(Bukkit.getOnlinePlayers());
-                int invalidPlayers = 0;
-                for (String name : args) {
-                    Player runner = Bukkit.getPlayer(name);
-                    if (runner != null) {
-                        if (runner.isOnline()) {
-                            if (!runners.contains(runner)) {
-                                runners.add(runner);
-                                hunters.remove(runner);
-                            }
-                        } else {
-                            commandSender.sendMessage("§cPlayer must be online!");
-                        }
-                    } else {
-                        invalidPlayers++;
-                    }
-                }
-                // start manhunt
-                if (invalidPlayers > 1) {
-                    commandSender.sendMessage("§cInvalid players!");
-                } else if (invalidPlayers > 0) {
-                    commandSender.sendMessage("§cInvalid player!");
-                } else if (!hunters.isEmpty()) {
-                    manhunt.addHunters(hunters);
-                    manhunt.addRunners(runners);
-                    manhunt.start();
-                } else {
-                    commandSender.sendMessage("§cYou need a minimum of one hunter and one runner to play Manhunt!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: runner §oplayer1 §c[§oplayer2, ...§c]");
+    public boolean onCommand(@Nonnull CommandSender commandSender, @Nonnull Command command,
+                             @Nonnull String s, @Nonnull String[] args) {
+        switch (command.getName()) {
+            case "runner" -> runner(commandSender, args);
+            case "addHunter" -> addHunter(commandSender, args);
+            case "addRunner" -> addRunner(commandSender, args);
+            case "removePlayer" -> removePlayer(commandSender, args);
+            case "compass" -> compass(commandSender, args);
+            case "stopManhunt" -> stopManhunt(commandSender, args);
+            case "updateRate" -> updateRate(commandSender, args);
+            default -> {
+                commandSender.sendMessage(
+                        "§cYou don't have the permission to execute this command!");
+                return false;
             }
-        } else if (command.getName().equals("add_hunter")) {
-            if (!manhunt.isRunning()) {
-                commandSender.sendMessage("§cManhunt hasn't started yet! Use the runner command to start a new game!");
-            } else if (args.length == 1 && commandSender.hasPermission("commands.add_hunter")) {
-                Player hunter = Bukkit.getPlayer(args[0]);
-                if (hunter != null) {
-                    if (hunter.isOnline()) {
-                        if (manhunt.isHunter(hunter)) {
-                            commandSender.sendMessage("§cPlayer is already a hunter!");
-                        } else if (manhunt.isRunner(hunter)) {
-                            commandSender.sendMessage("§cPlayer can't be a hunter! He is already a runner!");
-                        } else {
-                            manhunt.addHunter(hunter);
-                        }
-                    } else {
-                        commandSender.sendMessage("§cPlayer must be online!");
-                    }
-                } else {
-                    commandSender.sendMessage("§cInvalid Player!");
-                }
-            } else if (args.length == 0) {
-                if (commandSender instanceof Player hunter) {
-                    if (manhunt.isHunter(hunter)) {
-                        commandSender.sendMessage("§cYou are already a hunter!");
-                    } else if (manhunt.isRunner(hunter)) {
-                        commandSender.sendMessage("§cYou can't be a hunter! You are already a runner!");
-                    } else {
-                        manhunt.addHunter(hunter);
-                    }
-                } else {
-                    commandSender.sendMessage("§cOnly players are allowed to use this command!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: add_hunter [§oplayer§c]");
-            }
-        } else if (command.getName().equals("add_runner")) {
-            if (!manhunt.isRunning()) {
-                commandSender.sendMessage("§cManhunt hasn't started yet! Use the runner command to start a new game!");
-            } else if (args.length == 1 && commandSender.hasPermission("commands.add_runner")) {
-                Player runner = Bukkit.getPlayer(args[0]);
-                if (runner != null) {
-                    if (runner.isOnline()) {
-                        if (manhunt.isRunner(runner)) {
-                            commandSender.sendMessage("§cPlayer is already a runner!");
-                        } else if (manhunt.isHunter(runner)) {
-                            commandSender.sendMessage("§cPlayer can't be a runner! He is already a hunter!");
-                        } else {
-                            manhunt.addRunner(runner);
-                        }
-                    } else {
-                        commandSender.sendMessage("§cPlayer must be online!");
-                    }
-                } else {
-                    commandSender.sendMessage("§cInvalid Player!");
-                }
-            } else if (args.length == 0) {
-                if (commandSender instanceof Player runner) {
-                    if (manhunt.isRunner(runner)) {
-                        commandSender.sendMessage("§cYou are already a runner!");
-                    } else if (manhunt.isHunter(runner)) {
-                        commandSender.sendMessage("§cYou can't be a runner! You are already a hunter!");
-                    } else {
-                        manhunt.addRunner(runner);
-                    }
-                } else {
-                    commandSender.sendMessage("§cOnly players are allowed to use this command!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: add_runner [§oplayer§c]");
-            }
-        } else if (command.getName().equals("manhunt_remove")) { //
-            if (!manhunt.isRunning()) {
-                commandSender.sendMessage("§cManhunt hasn't started yet! Use the runner command to start a new game!");
-            } else if (args.length == 1 && commandSender.hasPermission("commands.manhunt_remove")) {
-                Player player = Bukkit.getPlayer(args[0]);
-                if (player != null) {
-                    if (player.isOnline()) {
-                        if (manhunt.isPlayer(player)) {
-                            manhunt.removePlayer(player);
-                            Bukkit.broadcastMessage("§aPlayer " + player.getDisplayName() + "§a is no longer a part of this manhunt!");
-                        } else {
-                            commandSender.sendMessage("§cYou can not remove a Player that is not a part of this Manhunt!");
-                        }
-                    } else {
-                        commandSender.sendMessage("§cPlayer must be online!");
-                    }
-                } else {
-                    commandSender.sendMessage("§cInvalid Player!");
-                }
-            } else if (args.length == 0) {
-                if (commandSender instanceof Player player) {
-                    if (manhunt.isPlayer(player)) {
-                        manhunt.removePlayer(player);
-                        Bukkit.broadcastMessage("§aPlayer " + player.getDisplayName() + "§a is no longer a part of this manhunt!");
-                    } else {
-                        commandSender.sendMessage("§cYou can not remove yourself, because you are not a part of this Manhunt!");
-                    }
-                } else {
-                    commandSender.sendMessage("§cOnly players are allowed to use this command!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: add_runner [§oplayer§c]");
-            }
-        } else if (command.getName().equals("compass")) {
-            if (commandSender instanceof Player player) {
-                if (manhunt.isHunter(player)) {
-                    if (!manhunt.hasCompass(player)) {
-                        if (player.getInventory().firstEmpty() != -1) {
-                            manhunt.giveHunterCompass(player);
-                        } else {
-                            commandSender.sendMessage("§cYour inventory is full! Free some space and use the command again!");
-                        }
-                    } else {
-                        commandSender.sendMessage("§cYou have already a compass, use it!");
-                    }
-                } else if (manhunt.isRunner(player)) {
-                    commandSender.sendMessage("§cYou are the runner! Don't play around, run!");
-                } else {
-                    commandSender.sendMessage("§cYou are not a part of this Manhunt, use add_hunter to start as Hunter!");
-                }
-            } else {
-                commandSender.sendMessage("§cOnly players are allowed to use this command!");
-            }
-        } else if (command.getName().equals("stop_manhunt") && commandSender.hasPermission("commands.stop_manhunt")) {
-            if (args.length == 0) {
-                if (manhunt.isRunning()) {
-                    manhunt.finish();
-                    Bukkit.broadcastMessage("§cManhunt stopped!");
-                } else {
-                    commandSender.sendMessage("§cYou can't stop a Manhunt that isn't running!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: stopManhunt");
-            }
-        } else if (command.getName().equals("heal")) {
-            if (args.length <= 1) {
-                if (commandSender instanceof Player player) {
-                    if (args.length == 1) player = Bukkit.getPlayer(args[0]);
-                    if (player != null) {
-                        if (player.isOnline()) {
-                            Manhunt.heal(player);
-                            Bukkit.broadcastMessage("Player §a" + player.getDisplayName() + "§r was healed!");
-                        } else {
-                            commandSender.sendMessage("§cPlayer must be online!");
-                        }
-                    } else {
-                        commandSender.sendMessage("§cInvalid Player!");
-                    }
-                } else {
-                    commandSender.sendMessage("§cOnly players are allowed to use this command!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: heal [§oplayer§c]");
-            }
-        } else if (command.getName().equals("updaterate")) {
-            if (args.length == 0) {
-                commandSender.sendMessage("§aCurrent updateRate: " + Main.getPlugin().getUpdateRate());
-            } else if (args.length == 1) {
-                try {
-                    int rate = Integer.parseInt(args[0]);
-                    if (rate > 0 && rate < 10000) {
-                        Main.getPlugin().setUpdateRate(rate);
-                        commandSender.sendMessage("§aSet updateRate to: " + rate);
-                    } else {
-                        commandSender.sendMessage("§cRate must be between 1 and 9999!");
-                    }
-                } catch (NumberFormatException ex) {
-                    commandSender.sendMessage("§cThe parameter §orate §cmust be an integer!");
-                }
-            } else {
-                commandSender.sendMessage("§cSyntax: setUpdateRate §orate");
-            }
-        } else {
-            commandSender.sendMessage("§cYou don't have the permission to execute this command!");
         }
         return true;
     }
     public static ManhuntCommands getInstance() {
         return instance;
     }
-    // constructor
-    private ManhuntCommands() {
+    private void runner(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.runner")) return;
+        if (Manhunt.getInstance().isRunning()) Manhunt.getInstance().finish();
+        if (args.length <= 0) {
+            commandSender.sendMessage("§cSyntax: runner §oplayer1 §c[§oplayer2, ...§c]");
+            return;
+        }
+        ArrayList<Player> runners = new ArrayList<>();
+        ArrayList<Player> hunters = new ArrayList<>(Bukkit.getOnlinePlayers());
+        for (String name : args) {
+            Player runner = Bukkit.getPlayer(name);
+            if (runner == null || !runner.isOnline() || runners.contains(runner)) {
+                commandSender.sendMessage("§cInvalid player list!");
+                return;
+            }
+            runners.add(runner);
+            hunters.remove(runner);
+        }
+        if (hunters.isEmpty()) {
+            commandSender.sendMessage(
+                    "§cYou need a minimum of one hunter and one runner to play Manhunt!");
+            return;
+        }
+        Manhunt.getInstance().addHunters(hunters);
+        Manhunt.getInstance().addRunners(runners);
+        Manhunt.getInstance().start();
+    }
+    @Helper
+    private Player getPlayer(CommandSender commandSender, String[] args) {
+        Player ret = null;
+        if (args.length == 1) {
+            ret = Bukkit.getPlayer(args[0]);
+        } else if (args.length == 0 && commandSender instanceof Player player) {
+            ret = player;
+        }
+        return ret;
+    }
+    private void addHunter(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.addHunter")) return;
+        if (isNotRunning(commandSender)) return;
+        Player hunter = getPlayer(commandSender, args);
+        if (hunter == null) {
+            commandSender.sendMessage("§cSyntax: add_hunter [§oplayer§c]");
+            return;
+        }
+        if (isOffline(commandSender, hunter)) return;
+        if (Manhunt.getInstance().isHunter(hunter)) {
+            commandSender.sendMessage("§cPlayer is already a hunter!");
+            return;
+        }
+        if (Manhunt.getInstance().isRunner(hunter)) {
+            commandSender.sendMessage("§cPlayer can't be a hunter! He is already a runner!");
+            return;
+        }
+        Manhunt.getInstance().addHunter(hunter);
+    }
+    private void addRunner(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.addRunner")) return;
+        if (isNotRunning(commandSender)) return;
+        Player runner = getPlayer(commandSender, args);
+        if (runner == null) {
+            commandSender.sendMessage("§cSyntax: add_runner [§oplayer§c]");
+            return;
+        }
+        if (isOffline(commandSender, runner)) return;
+        if (Manhunt.getInstance().isRunner(runner)) {
+            commandSender.sendMessage("§cPlayer is already a runner!");
+            return;
+        }
+        if (Manhunt.getInstance().isHunter(runner)) {
+            commandSender.sendMessage("§cPlayer can't be a runner! He is already a hunter!");
+            return;
+        }
+        Manhunt.getInstance().addRunner(runner);
+    }
+    private void removePlayer(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.removePlayer")) return;
+        if (isNotRunning(commandSender)) return;
+        Player player = getPlayer(commandSender, args);
+        if (player == null) {
+            commandSender.sendMessage("§cSyntax: removePlayer [§oplayer§c]");
+            return;
+        }
+        if (!Manhunt.getInstance().isPlayer(player)) {
+            commandSender.sendMessage(
+                    "§cYou can not remove a Player that is not a part of this Manhunt!");
+            return;
+        }
+        Manhunt.getInstance().removePlayer(player);
+        Bukkit.broadcastMessage(
+                "§aPlayer " + player.getDisplayName() + "§a is no longer a part of this manhunt!");
+    }
+    private void compass(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.compass")) return;
+        if (isNotRunning(commandSender)) return;
+        if (args.length != 0) {
+            commandSender.sendMessage("§cSyntax: compass");
+            return;
+        }
+        if (commandSender instanceof Player player) {
+            if (Manhunt.getInstance().isRunner(player)) {
+                commandSender.sendMessage("§cYou are the runner! Don't play around, run!");
+                return;
+            }
+            if (!Manhunt.getInstance().isHunter(player)) {
+                commandSender.sendMessage(
+                        "§cYou are not a part of this Manhunt, use add_hunter to start as Hunter!");
+                return;
+            }
+            Manhunt.getInstance().getHunter(player).giveCompass();
+        } else {
+            commandSender.sendMessage("§cOnly players are allowed to use this command!");
+        }
+    }
+    @Helper
+    private boolean isNotRunning(CommandSender commandSender) {
+        if (!Manhunt.getInstance().isRunning()) {
+            commandSender.sendMessage(
+                    "§cManhunt hasn't started yet! Use the runner command to start a new game!");
+        }
+        return !Manhunt.getInstance().isRunning();
+    }
+    @Helper
+    private boolean isOffline(CommandSender commandSender, Player player) {
+        if (!player.isOnline()) commandSender.sendMessage("§cPlayer must be online!");
+        return !player.isOnline();
+    }
+    private void stopManhunt(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.stopManhunt")) return;
+        if (isNotRunning(commandSender)) return;
+        if (args.length != 0) {
+            commandSender.sendMessage("§cSyntax: stopManhunt");
+            return;
+        }
+        Manhunt.getInstance().finish();
+        Bukkit.broadcastMessage("§cManhunt stopped!");
+    }
+    private void updateRate(CommandSender commandSender, String[] args) {
+        if (!commandSender.hasPermission("commands.updateRate")) return;
+        if (args.length == 0) {
+            commandSender.sendMessage(
+                    "§aCurrent updateRate: " + PluginInitializer.getPlugin().getUpdateRate());
+            return;
+        }
+        if (args.length != 1) {
+            commandSender.sendMessage("§cSyntax: setUpdateRate §orate");
+            return;
+        }
+        try {
+            int rate = Integer.parseInt(args[0]);
+            if (rate <= 0 || rate >= 10000) {
+                commandSender.sendMessage("§cRate must be between 1 and 9999!");
+                return;
+            }
+            PluginInitializer.getPlugin().setUpdateRate(rate);
+            commandSender.sendMessage("§aSet updateRate to: " + rate);
+        } catch (NumberFormatException ex) {
+            commandSender.sendMessage("§cThe parameter §orate §cmust be an integer!");
+        }
     }
 }

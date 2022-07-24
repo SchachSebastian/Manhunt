@@ -8,7 +8,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 
 public class SelectRoleInventory {
     private static final Inventory inventory;
-    private static final int menuSize = 9;
+    private static final int MENU_SIZE = 9;
     public static Inventory getInventory() {
         return inventory;
     }
@@ -23,7 +23,7 @@ public class SelectRoleInventory {
         return role;
     }
     static {
-        inventory = Bukkit.createInventory(null, menuSize, "Select your role");
+        inventory = Bukkit.createInventory(null, MENU_SIZE, "Select your role");
         ItemStack hunter = new ItemStack(Material.COMPASS);
         ItemStack runner = new ItemStack(Material.LEATHER_BOOTS);
         ItemMeta hunterMeta = hunter.getItemMeta();

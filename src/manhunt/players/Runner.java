@@ -29,13 +29,8 @@ public class Runner extends ManhuntPlayer {
     }
     @Override
     public void disable() {
-        Player runner = getPlayer();
-        if (runner != null) {
-            runner.setDisplayName(runner.getName());
-            runner.setPlayerListName(runner.getName());
-            runner.setGameMode(GameMode.SURVIVAL);
-            tracked = false;
-        }
+        super.disable();
+        tracked = false;
     }
     public Location getLocation(World.Environment environment) {
         return switch (environment) {

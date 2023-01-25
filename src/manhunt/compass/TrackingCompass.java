@@ -20,7 +20,7 @@ public class TrackingCompass {
     // attribute
     private static final ItemStack compass;
     private Hunter owner;
-    private boolean sendMessage = true;
+    private boolean sendMessage = false;
     private int taskID;
     private boolean tracking = true;
     static {
@@ -52,7 +52,7 @@ public class TrackingCompass {
     }
     public static ItemStack setName(ItemStack compass, String name) {
         ItemMeta itemMeta = compass.getItemMeta();
-        itemMeta.setDisplayName(COMPASS_NAME + name);
+        if (itemMeta != null) itemMeta.setDisplayName(COMPASS_NAME + name);
         compass.setItemMeta(itemMeta);
         return compass;
     }
@@ -68,10 +68,10 @@ public class TrackingCompass {
     }
     public void updateCompassData() {
         if (!owner.exists()) return;
-        sendMessage = true;
         for (ItemStack c : owner.getCurrentCompasses()) {
             Runner pointingTo = getPointingTo(c.getItemMeta());
             if (pointingTo == null) {
+                if (Manhunt.getInstance().getRunners().isEmpty()) return;
                 pointingTo = Manhunt.getInstance().getRunners().get(0);
                 setName(c, pointingTo.getPlayer().getName());
             }
@@ -89,6 +89,7 @@ public class TrackingCompass {
             compassMeta.setLodestone(loc);
             compassMeta.setLodestoneTracked(false);
             c.setItemMeta(compassMeta);
+            sendMessage = true;
         }
     }
     public void setOwner(Hunter owner) {

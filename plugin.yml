@@ -1,9 +1,8 @@
 name: Manhunt
-version: 3.0
+version: 3.2
 author: Schachi
 api-version: 1.18
-description: This is a manhunt plugin! This plugin may cause some problems by executing the reload command.
-  To solve these problems, just start a new Manhunt by using the runner command and stop it, by using stopManhunt!
+description: This is a manhunt plugin! Use runner player to start a game.
 
 main: main.PluginInitializer
 

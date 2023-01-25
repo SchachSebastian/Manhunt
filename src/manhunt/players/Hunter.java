@@ -34,14 +34,9 @@ public class Hunter extends ManhuntPlayer {
     }
     @Override
     public void disable() {
-        Player hunter = getPlayer();
-        if (hunter != null) {
-            hunter.setDisplayName(hunter.getName());
-            hunter.setPlayerListName(hunter.getName());
-            hunter.setGameMode(GameMode.SURVIVAL);
-            trackingCompass.setTracking(false);
-            removeCompasses();
-        }
+        super.disable();
+        trackingCompass.setTracking(false);
+        removeCompasses();
     }
     public void compassMenuClick(ItemStack item) {
         Runner runner = compassMenu.getClickedPlayer(item);

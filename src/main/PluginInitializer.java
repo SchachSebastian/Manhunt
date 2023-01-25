@@ -1,6 +1,9 @@
 package main;
 
-import manhunt.*;
+import manhunt.HealCommand;
+import manhunt.Manhunt;
+import manhunt.ManhuntCommands;
+import manhunt.ManhuntHandler;
 import org.bukkit.Bukkit;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -45,7 +48,8 @@ public class PluginInitializer extends JavaPlugin {
             command.setExecutor(ManhuntCommands.getInstance());
         PluginManager pluginManager = Bukkit.getPluginManager();
         pluginManager.registerEvents(new ManhuntHandler(), this);
-        pluginManager.registerEvents(new AntiCheatHandler(), this);
+        // only to trigger my brother
+        //pluginManager.registerEvents(new AntiCheatHandler(), this);
     }
     public static PluginInitializer getPlugin() {
         return plugin;

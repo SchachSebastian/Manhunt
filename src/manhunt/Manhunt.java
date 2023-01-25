@@ -88,7 +88,8 @@ public class Manhunt {
         });
     }
     public void removeRunner(Player runner) {
-        this.runners.stream().filter(r -> r.isPlayer(runner)).forEach(r -> {
+        List<Runner> removeRunners = this.runners.stream().filter(r -> r.isPlayer(runner)).toList();
+        removeRunners.forEach(r -> {
             this.runners.remove(r);
             r.disable();
             ((ManhuntPlayer) r).enable();
@@ -109,14 +110,14 @@ public class Manhunt {
     }
     public void start() {
         if (hunters.size() == 0 || runners.size() == 0) return;
-        this.hunters.forEach(Hunter::enable);
         this.runners.forEach(Runner::enable);
+        this.hunters.forEach(Hunter::enable);
         isRunning = true;
     }
     public void runnerDeath(Player deathRunner) {
         deathRunner.sendMessage("§4It's over! The hunters caught you!");
         removeRunner(deathRunner);
-        if (runners.size() == 0) {
+        if (runners.isEmpty()) {
             Bukkit.broadcastMessage("§2Hunters won!");
             finish();
         }

@@ -58,7 +58,7 @@ public class ManhuntHandler implements Listener {
     public void playerJoinedEvent(PlayerJoinEvent event) {
         if (!Manhunt.getInstance().isRunning()) return;
         Player loginPlayer = event.getPlayer();
-        if (!Manhunt.getInstance().isPlayer(loginPlayer)) return;
+        if (Manhunt.getInstance().isPlayer(loginPlayer)) return;
         Manhunt.getInstance().addNonPlayer(loginPlayer);
     }
     @EventHandler
